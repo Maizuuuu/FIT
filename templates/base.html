@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIT — Ваш тренер</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">
+      <a href="/">FIT <small>Fitness Intelligent Trainer</small></a>
+    </div>
+    <div class="nav-buttons">
+      <div class="goal-buttons">
+        <a href="/survey/weight-loss" class="goal-btn" style="background: var(--accent1); color: white;">🔥 Похудеть</a>
+        <a href="/survey/muscle-gain" class="goal-btn" style="background: var(--accent2); color: white;">💪 Набрать массу</a>
+        <a href="/survey/fitness" class="goal-btn" style="background: var(--accent3); color: var(--dark);">🔄 Поддержать форму</a>
+      </div>
+      <div class="auth-buttons">
+        {% if 'username' in session %}
+          <a href="/profile" class="btn btn-outline">{{ session['username'] }}</a>
+          <a href="/logout" class="btn btn-primary">Выйти</a>
+        {% else %}
+          <a href="/login" class="btn btn-outline">Войти</a>
+          <a href="/registration" class="btn btn-primary">Регистрация</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
