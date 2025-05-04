@@ -20,13 +20,15 @@
       </div>
       <div class="auth-buttons">
         {% if 'username' in session %}
-          <a href="/profile" class="btn btn-outline">{{ session['username'] }}</a>
+          <a href="/profile" class="user-btn">{{ session['username'] }}</a>
           <a href="/logout" class="btn btn-primary">Выйти</a>
         {% else %}
           <a href="/login" class="btn btn-outline">Войти</a>
           <a href="/registration" class="btn btn-primary">Регистрация</a>
         {% endif %}
       </div>
+    </div>
+  </header>
     </div>
   </header>
   <main class="content">

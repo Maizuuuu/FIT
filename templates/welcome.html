@@ -1,34 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="welcome-container" style="padding: 3rem 1rem; text-align: center;">
-  <h1 style="font-size: 3rem; margin-bottom: 1.5rem; color: var(--primary);">ДОБРО ПОЖАЛОВАТЬ В <span style="color: var(--secondary);">FIT</span></h1>
-  <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto 3rem; color: var(--dark);">
-    Персональный генератор тренировок с ИИ-анализом ваших целей и возможностей.
-  </p>
+<div class="welcome-container">
+  <!-- Левая колонка с кнопками -->
+  <section class="buttons-section">
+    <h2 style="color: white; margin-bottom: 2rem;">Выберите цель:</h2>
+    
+    <a href="/survey/weight-loss" class="main-goal-btn" style="background: var(--accent1); color: white;">
+      🔥 Похудеть
+    </a>
+    
+    <a href="/survey/muscle-gain" class="main-goal-btn" style="background: var(--accent2); color: white;">
+      💪 Набрать массу
+    </a>
+    
+    <a href="/survey/fitness" class="main-goal-btn" style="background: var(--accent3); color: var(--dark);">
+      🔄 Поддержать форму
+    </a>
+  </section>
 
-  <div class="features" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; margin: 3rem 0;">
-    <div class="feature-card">
-      <h3 style="color: var(--accent1);">🔥 Похудение</h3>
-      <p>Программы для сжигания жира и повышения выносливости.</p>
+  <!-- Правая колонка с описанием -->
+  <section class="info-section">
+    <h1 style="font-size: 2.5rem; color: var(--secondary); margin-bottom: 2rem;">
+      Добро пожаловать в <span style="color: var(--primary);">FIT</span>!
+    </h1>
+    
+    <div style="background: var(--light); padding: 2rem; border-radius: 10px; border-left: 5px solid var(--primary);">
+      <h2 style="color: var(--secondary); margin-bottom: 1rem;">Ваш персональный тренер</h2>
+      <p style="line-height: 1.6; margin-bottom: 1.5rem;">
+        FIT — это интеллектуальная система для создания тренировочных программ на основе ваших целей, уровня подготовки и доступного инвентаря.
+      </p>
+      <ul style="line-height: 2; margin-left: 1.5rem;">
+        <li>Персонализированные планы тренировок</li>
+        <li>Рекомендации по питанию</li>
+        <li>Трекинг прогресса</li>
+      </ul>
     </div>
-    <div class="feature-card">
-      <h3 style="color: var(--accent2);">💪 Набор массы</h3>
-      <p>Силовые тренировки для роста мышц.</p>
-    </div>
-    <div class="feature-card">
-      <h3 style="color: var(--accent3);">🔄 Поддержание формы</h3>
-      <p>Баланс силы и гибкости.</p>
-    </div>
-  </div>
 
-  <div style="margin-top: 3rem;">
-    <h2 style="margin-bottom: 1.5rem; color: var(--secondary);">Как это работает?</h2>
-    <ol style="max-width: 600px; margin: 0 auto; text-align: left; line-height: 2;">
-      <li>Выберите цель из трёх вариантов.</li>
-      <li>Ответьте на вопросы о вашем уровне подготовки.</li>
-      <li>Получите персональный план тренировок!</li>
-    </ol>
-  </div>
+    <div style="margin-top: 3rem;">
+      <h2 style="color: var(--secondary); margin-bottom: 1rem;">Как это работает?</h2>
+      <ol style="line-height: 2; margin-left: 1.5rem;">
+        <li>Выберите одну из трёх целей</li>
+        <li>Ответьте на вопросы о ваших возможностях</li>
+        <li>Получите готовый план тренировок</li>
+      </ol>
+    </div>
+  </section>
 </div>
 {% endblock %}

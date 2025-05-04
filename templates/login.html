@@ -1,21 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ddd;">
-    <h2>Вход</h2>
-    {% if error %}
-        <p class="error">{{ error }}</p>
+<div class="form-container">
+  <h2>Вход</h2>
+  
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="error-messages">
+        {% for category, message in messages %}
+          <p class="error">{{ message }}</p>
+        {% endfor %}
+      </div>
     {% endif %}
-    <form method="POST">
-        <div style="margin-bottom: 1rem;">
-            <label>Имя пользователя:</label>
-            <input type="text" name="username" required style="width: 100%; padding: 0.5rem;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <label>Пароль:</label>
-            <input type="password" name="password" required style="width: 100%; padding: 0.5rem;">
-        </div>
-        <button type="submit" style="width: 100%; padding: 0.5rem; background: #007bff; color: white; border: none;">Войти</button>
-    </form>
+  {% endwith %}
+  
+  <form method="POST">
+    <input type="text" name="username" class="form-input" placeholder="Имя пользователя" required>
+    <input type="password" name="password" class="form-input" placeholder="Пароль" required>
+    <button type="submit" class="btn btn-primary">Войти</button>
+  </form>
 </div>
 {% endblock %}

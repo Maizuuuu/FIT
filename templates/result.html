@@ -1,0 +1,43 @@
+<!-- templates/result.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result-container">
+  <h1>🏋️ Ваш персональный план</h1>
+  
+  <div class="stats-box">
+    <div class="stat-item">
+      <h3>🎯 Цель</h3>
+      <p>Ежедневный дефицит: {{ plan.calories|int }} ккал</p>
+    </div>
+    
+    <div class="stat-item">
+      <h3>📅 График</h3>
+      <p>{{ plan.days }} тренировок в неделю</p>
+    </div>
+  </div>
+
+  <div class="workout-plan">
+    {% for day in plan.exercises %}
+    <div class="day-card">
+      <h3>День {{ loop.index }}</h3>
+      <ul>
+        {% for ex in day %}
+        <li>{{ ex.name }} ({{ ex.sets }}x{{ ex.reps }})</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="recommendations">
+    <h3>💡 Советы</h3>
+    <ul>
+      <li>Сон: не менее {{ plan.recovery.sleep }} часов</li>
+      {% if 'no_heavy_lifting' in plan.restrictions %}
+      <li>Избегайте осевой нагрузки на позвоночник</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
