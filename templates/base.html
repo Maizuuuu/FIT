@@ -19,7 +19,7 @@
         <a href="/survey/fitness" class="goal-btn" style="background: var(--accent3); color: var(--dark);">🔄 Поддержать форму</a>
       </div>
       <div class="auth-buttons">
-        {% if 'username' in session %}
+        {% if 'user_id' in session %}
           <a href="/profile" class="user-btn">{{ session['username'] }}</a>
           <a href="/logout" class="btn btn-primary">Выйти</a>
         {% else %}

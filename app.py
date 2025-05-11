@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-from models import db, User, Workout  
+from models import db, User, Survey  
 from workout_logic import calculate_tdee, generate_workout_plan, get_equipment_exercises
+import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -19,26 +20,66 @@ def registerpage():
         return render_template("register.html")
     
     if request.method == "POST":
-        username = request.form.get("username").lower()
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
+        username = request.form.get("username", "").strip().lower()
+        password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        errors = []  # Список для сбора всех ошибок
 
-        # Проверка через SQLAlchemy
-        user = User.query.filter_by(username=username).first()
-        if user:
-            return render_template("register.html", error="Имя пользователя уже занято")
+        # 1. Проверка заполненности полей
+        if not username:
+            errors.append("Поле имени пользователя обязательно")
+        if not password:
+            errors.append("Поле пароля обязательно")
+        if not confirm_password:
+            errors.append("Поле подтверждения пароля обязательно")
         
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return redirect(url_for('registerpage'))
+
+        # 2. Проверка длины
+        if len(username) < 6:
+            errors.append("Имя должно содержать минимум 6 символов")
+        if len(password) < 6:
+            errors.append("Пароль должен содержать минимум 6 символов")
+
+        # 3. Проверка пробелов
+        if ' ' in username:
+            errors.append("Имя не должно содержать пробелов")
+        if ' ' in password:
+            errors.append("Пароль не должен содержать пробелов")
+
+        # 4. Проверка банвордов
+        if any(banned in username for banned in BANWORDS):
+            errors.append("Имя содержит запрещенные слова")
+
+        # 5. Проверка уникальности
+        if User.query.filter_by(username=username).first():
+            errors.append("Имя пользователя уже занято")
+
+        # 6. Совпадение паролей
         if password != confirm_password:
-            return render_template("register.html", error="Пароли не совпадывают")
+            errors.append("Пароли не совпадают")
 
-        # Создание нового пользователя
-        new_user = User(username=username, password=password)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        session["user_id"] = new_user.id
-        return redirect("/")
-    
+        # Если есть ошибки - показываем все
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return redirect(url_for('registerpage'))
+
+        # Создание пользователя
+        try:
+            new_user = User(username=username, password=password)
+            db.session.add(new_user)
+            db.session.commit()
+            session["user_id"] = new_user.id
+            session["username"] = username
+            return redirect("/")
+        except Exception as e:
+            db.session.rollback()
+            flash("Ошибка при создании пользователя", "error")
+            return redirect(url_for('registerpage'))
 
 @app.route("/login", methods=["POST", "GET"])
 def login_page():
@@ -46,159 +87,83 @@ def login_page():
         return render_template("login.html")
     
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        errors = []
+
+        # Проверка заполненности
+        if not username:
+            errors.append("Поле имени пользователя обязательно")
+        if not password:
+            errors.append("Поле пароля обязательно")
         
-        # Используем исправленный метод
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return redirect(url_for('login_page'))
+
         user = User.query.filter_by(username=username).first()
         
-        if not user or user.password != password:
-            return render_template("login.html", error='Неправильный логин или пароль')
-        if not username or not password:
-            flash('Все поля обязательны для заполнения', 'error')
-            return redirect('/login')
+        # Проверки существования и пароля
+        if not user:
+            errors.append("Пользователь с таким именем не найден")
+        elif user.password != password:
+            errors.append("Неверный пароль")
+
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return redirect(url_for('login_page'))
+        
         session["user_id"] = user.id
+        session["username"] = user.username
         return redirect('/')
-
-
 
 @app.route("/logout")
 def logout_page():
-    session.pop("username", None)
+    session.pop("user_id", None)
+    session.pop("username", None)  
     return redirect("/login")
 
-def calculate_tdee(data):
-    """Рассчет ежедневного расхода калорий (Mifflin-St Jeor Equation)"""
-    weight = float(data['weight'])
-    height = float(data['height'])
-    age = int(data['age'])
+@app.route("/profile")
+def profile():
+    if "user_id" not in session:
+        return redirect("/login")
     
-    if data['gender'] == 'male':
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5
-    else:
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161
+    user = User.query.get(session["user_id"])
+    return render_template("profile.html", current_user=user)
+@app.route("/delete-survey/<int:survey_id>", methods=["POST"])
+def delete_survey(survey_id):
+    if "user_id" not in session:
+        return redirect("/login")
     
-    activity_multiplier = {
-        'sedentary': 1.2,
-        'light': 1.375,
-        'moderate': 1.55,
-        'high': 1.725
-    }
+    survey = Survey.query.get(survey_id)
     
-    return bmr * activity_multiplier[data['activity_level']]
-
-def generate_workout_plan(data):
-    plan = {}
-    
-    # Расчет целевого дефицита калорий
-    tdee = calculate_tdee(data)
-    deficit = 500 if data['desired_workouts'] >= 4 else 300
-    plan['calories'] = tdee - deficit
-    
-    # Подбор типа тренировок
-    if data['experience'] == 'beginner':
-        plan['type'] = 'full_body'
-        plan['days'] = 3
-    else:
-        plan['type'] = 'split'
-        plan['days'] = data['desired_workouts']
-    
-    # Учет ограничений по здоровью
-    if 'back_pain' in data['health_issues']:
-        plan['restrictions'] = ['no_heavy_lifting', 'core_focus']
-    
-    # Подбор упражнений
-    equipment = data['equipment']
-    if 'none' in equipment:
-        plan['exercises'] = get_bodyweight_exercises(data['focus_areas'])
-    else:
-        plan['exercises'] = get_equipment_exercises(equipment)
-    
-    # Рекомендации по восстановлению
-    plan['recovery'] = {
-        'sleep': 8 if data['fatigue_speed'] == 'high' else 7,
-        'rest_days': max(2, 7 - int(data['desired_workouts']))
-    }
-    
-    return plan
-
-@app.route('/survey/weight-loss', methods=['GET', 'POST'])
-def weight_loss_survey():
-    # Проверка авторизации
-    if 'user_id' not in session:
-        return redirect(url_for('login_page'))
-
-    # Обработка GET-запроса
-    if request.method == 'GET':
-        return render_template('survey_weight_loss.html')
-
-    # Обработка POST-запроса
-    try:
-        # Сбор и преобразование данных формы
-        data = {
-            # Личные данные
-            'name': request.form.get('name', ''),
-            'age': int(request.form.get('age', 25)),
-            'gender': request.form.get('gender', 'male'),
-            'height': float(request.form.get('height', 170)),
-            'weight': float(request.form.get('weight', 70)),
-            'chest': float(request.form.get('chest', 0)) if request.form.get('chest') else None,
-            'waist': float(request.form.get('waist', 0)),
-            'hips': float(request.form.get('hips', 0)) if request.form.get('hips') else None,
-            
-            # Параметры тренировок
-            'fatigue_speed': request.form.get('fatigue_speed', 'medium'),
-            'workout_duration': int(request.form.get('workout_duration', 30)),
-            'experience': request.form.get('experience', 'beginner'),
-            'workouts_per_week': int(request.form.get('workouts_per_week', 3)),
-            
-            # Здоровье и активность
-            'activity_level': request.form.get('activity_level', 'sedentary'),
-            'health_issues': request.form.getlist('health_issues'),
-            
-            # Цели и оборудование
-            'desired_workouts': int(request.form.get('desired_workouts', 3)),
-            'location': request.form.get('location', 'home'),
-            'equipment': request.form.getlist('equipment'),
-            
-            # Дополнительная информация
-            'focus_areas': request.form.getlist('focus_areas'),
-            'current_plan': request.form.get('current_plan', ''),
-            'habits': request.form.getlist('habits'),
-            'comments': request.form.get('comments', '')
-        }
-
-        # Генерация плана тренировок
-        plan = generate_workout_plan(data)
-
-        # Создание записи в БД
-        new_workout = Workout(
-            user_id=session['user_id'],
-            goal='weight_loss',
-            data=data,
-            plan=plan
-        )
-
-        db.session.add(new_workout)
+    # Проверка владельца
+    if survey and survey.user_id == session["user_id"]:
+        db.session.delete(survey)
         db.session.commit()
+        flash("Опрос успешно удален", "success")
+    else:
+        flash("Ошибка удаления", "error")
+    
+    return redirect(url_for('profile'))
 
-        return redirect(url_for('result', workout_id=new_workout.id))
-
-    except ValueError as e:
-        db.session.rollback()
-        return render_template('error.html', 
-                             error=f"Ошибка ввода данных: {str(e)}")
-
-    except KeyError as e:
-        db.session.rollback()
-        return render_template('error.html', 
-                             error=f"Отсутствует обязательное поле: {str(e)}")
-
-    except Exception as e:
-        db.session.rollback()
-        app.logger.error(f"Ошибка при сохранении: {str(e)}")
-        return render_template('error.html', 
-                             error="Произошла внутренняя ошибка сервера")
+# Маршрут для просмотра результата
+@app.route("/survey-result/<int:survey_id>")
+def view_survey_result(survey_id):
+    if "user_id" not in session:
+        return redirect("/login")
+    
+    survey = Survey.query.get(survey_id)
+    
+    if not survey or survey.user_id != session["user_id"]:
+        flash("Опрос не найден", "error")
+        return redirect(url_for('profile'))
+    
+    return render_template("survey_result.html", 
+                         survey=survey,
+                         result=json.loads(survey.result_data))
 
 if __name__ == "__main__":
     with app.app_context():
