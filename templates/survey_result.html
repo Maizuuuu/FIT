@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result-container">
+  <div class="result-header" style="border-color: {{ plan.color }};">
+    <h2>Ваш план готов!</h2>
+    <div class="total-score">{{ total_score }}/100</div>
+    <p class="result-category">
+      {% if plan.level == 'beginner' %}
+        Начальный уровень
+      {% elif plan.level == 'intermediate' %}
+        Средний уровень
+      {% else %}
+        Продвинутый уровень
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="plan-details">
+    <h3>🏋️‍♂️ Ваша программа</h3>
+    
+    <div class="plan-section">
+      <h4>Рекомендуемые упражнения:</h4>
+      <ul class="exercises-list">
+        {% for exercise in plan.exercises %}
+        <li>{{ exercise }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="plan-section">
+      <h4>📅 График тренировок:</h4>
+      <p><strong>Дней в неделю:</strong> {{ plan.workouts_per_week }}</p>
+      <p><strong>Время тренировки:</strong> {{ plan.workout_time }} минут</p>
+      <p><strong>Примерный срок:</strong> {{ plan.estimated_weeks }} недель</p>
+    </div>
+  </div>
+
+  <a href="{{ url_for('welcome') }}" class="btn btn-primary">На главную</a>
+</div>
+{% endblock %}

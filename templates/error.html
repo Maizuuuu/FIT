@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="error-container">
+    <h2>⚠️ Ошибка</h2>
+    <p>{{ error }}</p>
+    <a href="/survey/weight-loss" class="btn">Вернуться к опросу</a>
+</div>
+{% endblock %}
