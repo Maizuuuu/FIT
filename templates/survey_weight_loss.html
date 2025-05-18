@@ -1,208 +1,190 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="survey-container">
-  <h1>📝 Персонализированный опрос для похудения</h1>
+<form action="/survey/weight-loss" method="POST" class="survey-container">
+  <h1 class="survey-title">🔥 Персональный план похудения</h1>
   
-  <form method="POST" class="survey-form" onsubmit="return validateForm()">
-    <!-- Раздел 1: Персональные данные -->
-    <fieldset class="form-section">
-      <legend>🔍 Основная информация</legend>
-      
-      <div class="form-group">
-        <label>Имя:</label>
-        <input type="text" name="name" required>
-      </div>
+  <!-- Секция: Название опроса -->
+  <section class="survey-section">
+    <h2>Название опроса</h2>
+    <div class="form-group">
+      <label class="question">Введите отображаемое имя опроса:</label>
+      <input type="text" name="survey_name" class="form-input" required>
+    </div>
+  </section>
+  
+  <div class="section-divider"></div>
 
-      <div class="form-group">
-        <label>Пол:</label>
-        <div class="radio-group">
-            <label><input type="radio" name="gender" value="male" required> Мужской</label>
-            <label><input type="radio" name="gender" value="female"> Женский</label>
-        </div>
+  <section class="survey-section">
+    <h2>1. Основные данные</h2>
+
+    <div class="form-group">
+      <label class="question">1.1. Ваш возраст (лет):</label>
+      <input type="number" name="age" min="18" max="100" class="form-input" required>
     </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Возраст:</label>
-          <input type="number" name="age" min="12" max="100" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Рост (см):</label>
-          <input type="number" name="height" min="120" max="250" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Вес (кг):</label>
-          <input type="number" name="weight" min="30" max="300" step="0.1" required>
-        </div>
+    <div class="form-group">
+      <label class="question">1.2. Текущий вес (кг):</label>
+      <input type="number" name="current_weight" min="30" max="300" class="form-input" required>
+    </div>
+
+    <div class="form-group">
+      <label class="question">1.3. Желаемый вес (кг):</label>
+      <input type="number" name="target_weight" min="30" max="300" class="form-input" required>
+    </div>
+
+    <div class="form-group">
+      <label class="question">1.4. Уровень активности:</label>
+      <div class="radio-group">
+        <label><input type="radio" name="activity" value="low" required> Сидячий образ жизни</label>
+        <label><input type="radio" name="activity" value="medium"> Умеренная активность</label>
+        <label><input type="radio" name="activity" value="high"> Высокая активность</label>
       </div>
+    </div>
+  </section>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Обхват груди (см):</label>
-          <input type="number" name="chest" min="50" max="200">
-        </div>
-        
-        <div class="form-group">
-          <label>Обхват талии (см):</label>
-          <input type="number" name="waist" min="50" max="200" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Обхват бёдер (см):</label>
-          <input type="number" name="hips" min="50" max="200">
-        </div>
+  <div class="section-divider"></div>
+
+  <!-- Секция 2: Медицинские ограничения -->
+  <section class="survey-section">
+    <h2>2. Медицинские ограничения</h2>
+
+    <div class="form-group">
+      <label class="question">2.1. Есть ли противопоказания к спорту?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="health_issues" value="yes" required> Да</label>
+        <label><input type="radio" name="health_issues" value="no"> Нет</label>
       </div>
-    </fieldset>
+    </div>
 
-    <!-- Раздел 2: Физическая подготовка -->
-    <fieldset class="form-section">
-      <legend>💪 Уровень подготовки</legend>
-      
-      <div class="form-group">
-        <label>Скорость утомления:</label>
-        <select name="fatigue_speed" required>
-          <option value="low">Медленно (выдерживаю 1+ час)</option>
-          <option value="medium">Средне (30-60 мин)</option>
-          <option value="high">Быстро (менее 30 мин)</option>
-        </select>
+    <div class="form-group">
+      <label class="question">2.2. Если «Да», укажите какие:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="restrictions" value="heart"> Болезни сердца</label>
+        <label><input type="checkbox" name="restrictions" value="joints"> Проблемы с суставами</label>
+        <label><input type="checkbox" name="restrictions" value="diabetes"> Диабет</label>
+        <label><input type="checkbox" name="restrictions" value="other"> Другое: 
+          <input type="text" name="other_restriction" class="form-input-small">
+        </label>
       </div>
+    </div>
+  </section>
 
-      <div class="form-group">
-        <label>Средняя продолжительность тренировки:</label>
-        <div class="radio-group">
-          <label><input type="radio" name="workout_duration" value="30" required> 30 мин</label>
-          <label><input type="radio" name="workout_duration" value="45"> 45 мин</label>
-          <label><input type="radio" name="workout_duration" value="60"> 60+ мин</label>
-        </div>
+  <div class="section-divider"></div>
+
+  <!-- Секция 3: Предпочтения в тренировках -->
+  <section class="survey-section">
+    <h2>3. Предпочтения в тренировках</h2>
+
+    <div class="form-group">
+      <label class="question">3.1. Выберите типы нагрузок:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="workout_types" value="cardio"> Кардио</label>
+        <label><input type="checkbox" name="workout_types" value="strength"> Силовые</label>
+        <label><input type="checkbox" name="workout_types" value="yoga"> Йога/Растяжка</label>
+        <label><input type="checkbox" name="workout_types" value="home"> Домашние тренировки</label>
       </div>
+    </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Опыт тренировок:</label>
-          <select name="experience" required>
-            <option value="beginner">0-6 месяцев</option>
-            <option value="intermediate">6-24 месяца</option>
-            <option value="advanced">2+ года</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label>Тренировок в неделю:</label>
-          <input type="number" name="workouts_per_week" min="1" max="7" required>
-        </div>
-      </div>
-    </fieldset>
+    <div class="form-group">
+      <label class="question">3.2. Максимальное время на тренировку:</label>
+      <select name="workout_time" class="form-select" required>
+        <option value="20">20 минут</option>
+        <option value="30">30 минут</option>
+        <option value="45">45 минут</option>
+        <option value="60">60 минут</option>
+      </select>
+    </div>
+  </section>
 
-    <!-- Раздел 3: Активность и здоровье -->
-    <fieldset class="form-section">
-      <legend>🏥 Здоровье и активность</legend>
-      
-      <div class="form-group">
-        <label>Уровень повседневной активности:</label>
-        <select name="activity_level" required>
-          <option value="sedentary">Сидячий (офисная работа)</option>
-          <option value="light">Лёгкая (пешие прогулки)</option>
-          <option value="moderate">Умеренная (физический труд)</option>
-          <option value="high">Высокая (строительство, спорт)</option>
-        </select>
-      </div>
+  <div class="section-divider"></div>
 
-      <div class="form-group">
-        <label>Проблемы со здоровьем:</label>
-        <div class="checkbox-group">
-          <label><input type="checkbox" name="health_issues" value="joint_pain"> Боли в суставах</label>
-          <label><input type="checkbox" name="health_issues" value="back_pain"> Проблемы с позвоночником</label>
-          <label><input type="checkbox" name="health_issues" value="heart"> Сердечно-сосудистые заболевания</label>
-          <label><input type="checkbox" name="health_issues" value="none"> Нет проблем</label>
-        </div>
-      </div>
-    </fieldset>
-
-    <!-- Раздел 4: Цели и условия -->
-    <fieldset class="form-section">
-      <legend>🎯 Цели тренировок</legend>
-      
-      <div class="form-group">
-        <label>Желаемое количество тренировок:</label>
-        <input type="number" name="desired_workouts" min="2" max="7" required>
-      </div>
-
-      <div class="form-group">
-        <label>Место тренировок:</label>
-        <select name="location" required>
-          <option value="gym">Тренажерный зал</option>
-          <option value="home">Дома</option>
-          <option value="outdoor">На улице</option>
-        </select>
-      </div>
-
-      <div class="form-group" id="equipmentSection">
-        <label>Имеющийся инвентарь:</label>
-        <div class="checkbox-group">
-          <label><input type="checkbox" name="equipment" value="dumbbells"> Гантели</label>
-          <label><input type="checkbox" name="equipment" value="mat"> Коврик</label>
-          <label><input type="checkbox" name="equipment" value="resistance_band"> Эспандер</label>
-          <label><input type="checkbox" name="equipment" value="none"> Нет инвентаря</label>
-        </div>
-      </div>
-    </fieldset>
-
-    <!-- Дополнительные вопросы -->
-    <fieldset class="form-section">
-      <legend>💡 Дополнительная информация</legend>
-      
-      <div class="form-group">
-        <label>Приоритетные зоны:</label>
-        <select name="focus_areas" multiple>
-          <option value="abs">Пресс</option>
-          <option value="legs">Ноги</option>
-          <option value="arms">Руки</option>
-          <option value="back">Спина</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Текущий план тренировок:</label>
-        <textarea name="current_plan" rows="3"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Вредные привычки:</label>
-        <div class="checkbox-group">
-          <label><input type="checkbox" name="habits" value="smoking"> Курение</label>
-          <label><input type="checkbox" name="habits" value="alcohol"> Алкоголь</label>
-          <label><input type="checkbox" name="habits" value="junk_food"> Фастфуд</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Особые пожелания:</label>
-        <textarea name="comments" rows="2"></textarea>
-      </div>
-    </fieldset>
-
-    <button type="submit" class="btn-submit">Сгенерировать план</button>
-  </form>
-</div>
-
+  <button type="submit" class="btn btn-primary survey-submit">Сгенерировать план</button>
+</form>
+<script src="{{ url_for('static', filename='js/survey_logic.js') }}"></script>
 <script>
 function validateForm() {
-    const age = document.querySelector('input[name="age"]').value;
-    if (age < 12 || age > 100) {
-        alert("Возраст должен быть между 12 и 100");
+  // 1. Проверка обязательных полей
+  const requiredFields = [
+    {name: 'survey_name', label: 'Название опроса'},
+    {name: 'age', label: 'Возраст'},
+    {name: 'current_weight', label: 'Текущий вес'},
+    {name: 'target_weight', label: 'Желаемый вес'},
+    {name: 'activity', label: 'Уровень активности', isRadio: true},
+    {name: 'health_issues', label: 'Противопоказания', isRadio: true}
+  ];
+
+  for (const field of requiredFields) {
+    if (field.isRadio) {
+      if (!document.querySelector(`[name="${field.name}"]:checked`)) {
+        alert(`Поле "${field.label}" обязательно!`);
         return false;
-    }
-    
-    const weight = document.querySelector('input[name="weight"]').value;
-    if (weight < 30 || weight > 300) {
-        alert("Вес должен быть между 30 и 300 кг");
+      }
+    } else {
+      const value = document.querySelector(`[name="${field.name}"]`).value.trim();
+      if (!value) {
+        alert(`Поле "${field.label}" обязательно!`);
         return false;
+      }
     }
-    
-    return true;
+  }
+
+  // 2. Проверка числовых значений
+  const age = parseInt(document.querySelector('[name="age"]').value);
+  if (age < 14 || age > 100) {
+    alert("Возраст должен быть от 14 до 100 лет");
+    return false;
+  }
+
+  const currentWeight = parseInt(document.querySelector('[name="current_weight"]').value);
+  const targetWeight = parseInt(document.querySelector('[name="target_weight"]').value);
+  
+  if (currentWeight < 30 || currentWeight > 300) {
+    alert("Текущий вес должен быть от 30 до 300 кг");
+    return false;
+  }
+
+  if (targetWeight >= currentWeight) {
+    alert("Желаемый вес должен быть меньше текущего!");
+    return false;
+  }
+
+  // 3. Проверка медицинских ограничений
+  const healthIssues = document.querySelector('[name="health_issues"]:checked').value;
+  if (healthIssues === 'yes') {
+    const restrictions = document.querySelectorAll('[name="restrictions"]:checked');
+    if (restrictions.length === 0) {
+      alert("Укажите хотя бы одно противопоказание");
+      return false;
+    }
+  }
+
+  // 4. Проверка выбора тренировок
+  const workoutTypes = document.querySelectorAll('[name="workout_types"]:checked');
+  if (workoutTypes.length === 0) {
+    alert("Выберите хотя бы один тип тренировок");
+    return false;
+  }
+
+  return true;
+}
+
+// Вешаем валидацию на форму
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (!validateForm()) {
+    e.preventDefault();
+  }
+});
+</script>
+<script>
+function validateForm() {
+  const name = document.querySelector('[name="survey_name"]').value;
+  const age = document.querySelector('[name="age"]').value;
+  if (!name || !age) {
+    alert("Заполните обязательные поля!");
+    return false;
+  }
+  return true;
 }
 </script>
 {% endblock %}
